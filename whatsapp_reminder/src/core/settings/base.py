@@ -12,6 +12,11 @@ THEME_PARTY_APPS = [
 ]
 
 
+APPS = [
+    'users',
+    'reminders',
+    'reminder_logs',]
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -20,7 +25,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    *THEME_PARTY_APPS,]
+    *THEME_PARTY_APPS,
+    *APPS,]
 
 
 
