@@ -33,6 +33,9 @@ class CreateReminderView(APIView):
 
 
 class ListRemindersView(APIView):
+    """
+    Метод для получения списка напоминаний
+    """
     def get(self, request, phone_number):
         user = User.objects.filter(phone_number=phone_number).first()
         if not user:
