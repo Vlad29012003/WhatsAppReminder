@@ -8,6 +8,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
 ALLOWED_HOST = env('ALLOWED_HOSTS',default='*').split(',')
+WATI_BASE_URL = env('WATI_BASE_URL', '')
+WATI_ACCESS_TOKEN = env('ACCESS_WHATSAPP_TOKEN', '')
+
+print(f"WATI_BASE_URL from env: {env('API_WTATSAPP_Endpoint', '')}")
+
 
 
 
