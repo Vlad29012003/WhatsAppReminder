@@ -8,6 +8,9 @@ class TestUserUpdateView:
 
     @pytest.mark.django_db
     def test_update_user(self, create_user):
+        """
+        Тест на обновление пользователя
+        """
         client = APIClient()
         url = f'/api/users/user/update/{create_user.phone_number}/'
         data = {
@@ -24,6 +27,9 @@ class TestUserUpdateView:
 
     @pytest.mark.django_db
     def test_update_user_not_found(self):
+        """
+        Тест на обновление пользователя, если пользователь не найден
+        """
         client = APIClient()
         url = '/api/users/user/update/123/'
         data = {
@@ -37,6 +43,9 @@ class TestUserUpdateView:
 
     @pytest.mark.django_db
     def test_update_user_invalid_data(self, create_user):
+        """
+        Тест на обновление пользователя с неправильными данными
+        """
         client = APIClient()
         url = f'/api/users/user/update/{create_user.phone_number}/'
         data = {

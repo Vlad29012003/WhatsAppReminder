@@ -24,3 +24,8 @@ static/
 
 # Misc
 .DS_Store
+
+# PgBouncer
+pgbouncer.ini
+pgbouncer.sock
+userlist.txt

@@ -1,0 +1,96 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15
+    container_name: reminder_db
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+
+    ports:
+      - "5433:5432"
+    volumes:
+    - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  
+  app:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    command: >
+      bash -c "python manage.py makemigrations &&
+                python manage.py migrate &&
+                python manage.py collectstatic --noinput &&
+                gunicorn core.wsgi:application --bind 0.0.0.0:8000 --timeout 10000 --limit-request-field_size 16384 --workers 2"
+    
+    volumes:
+      - ./src:/app/src
+      - static_volume:/app/src/staticfiles
+      - media_volume:/app/src/media
+      - ./logs:/app/src/logs
+
+    ports:
+      - "8001:8000"
+    depends_on:
+      - db
+      - pgbouncer
+    environment:
+      - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - DEBUG=${DEBUG}
+
+    networks:
+      - app-network
+    env_file:
+      - .env
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/reminder_db
+    ports:
+      - "6433:6432"
+    depends_on:
+      - db
+
+    volumes:
+      - ./etc/pgbouncer.ini:/src/pgbouncer/pgbouncer.ini:ro
+      - ./etc/userlist.txt:/src/pgbouncer/userlist.txt:ro
+
+  
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+
+    ports:
+      - "80:80"
+      - "443:443"
+
+    depends_on:
+      - app
+    networks:
+      - app-network
+
+
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+
+
+
+networks:
+  app-network:
+    driver: bridge
