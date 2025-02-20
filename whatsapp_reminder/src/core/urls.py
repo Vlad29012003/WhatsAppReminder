@@ -21,5 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('users.api.urls')),
     path('api/reminders/', include('reminders.api.urls')),
-    path('api/logs/', include('reminder_logs.api.urls')),]
+    path('api/reminder_logs/', include('reminder_logs.api.urls')),]
 
