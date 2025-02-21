@@ -3,12 +3,19 @@ from rest_framework.response import Response
 from rest_framework import status
 from reminder_logs.models import ReminderLog
 from .serializers import ReminderLogSerializer
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse, OpenApiExample
+from reminder_logs.docs.schemas import reminder_log_list_schema, reminder_log_detail_schema, reminder_log_update_schema
+
 
 
 class ReminderLogListView(APIView):
     """
     Метод для получения списка логов напоминаний
     """
+    @extend_schema(
+        responses={200: reminder_log_list_schema},
+        tags=['Reminder Logs']
+    )
     def get(self, request):
         reminder_logs = ReminderLog.objects.all()
         serializer = ReminderLogSerializer(reminder_logs, many=True)
@@ -19,6 +26,10 @@ class ReminderLogDetailView(APIView):
     """
     Метод для получения информации о логе напоминания
     """
+    @extend_schema(
+        responses={200: reminder_log_detail_schema},
+        tags=['Reminder Logs']
+    )
     def get(self, request, log_id):
         log = ReminderLog.objects.filter(id=log_id).first()
         if not log:
@@ -31,6 +42,10 @@ class ReminderLogUpdateView(APIView):
     """
     Метод для обновления информации о логе напоминания
     """
+    @extend_schema(
+        responses={200: reminder_log_update_schema},
+        tags=['Reminder Logs']
+    )
     def patch(self, request, log_id):
         log = ReminderLog.objects.filter(id=log_id).first()
         if not log:

@@ -9,6 +9,9 @@ THEME_PARTY_APPS = [
     'rest_framework',
     'corsheaders',
     'django_filters',
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
+    'django_celery_beat',
 ]
 
 
@@ -124,4 +127,15 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer'
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Whatsapp Reminder API',
+    'DESCRIPTION': 'Whatsapp Reminder API',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SERVE_PERMISSIONS': ['rest_framework.permissions.AllowAny'],
+
 }

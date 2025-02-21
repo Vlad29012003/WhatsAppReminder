@@ -23,6 +23,7 @@ class Reminder(models.Model):
     status = models.CharField(max_length=10, choices=REMINDER_STATUS, default='pending')
     repeat_type = models.CharField(max_length=10, choices=REPEAT_CHOICES, default='none')
     last_sent = models.DateTimeField(null=True, blank=True)
+    is_sent = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-scheduled_time']

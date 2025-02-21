@@ -6,12 +6,23 @@ from reminders.api.serializers import ReminderSerializer
 from users.models import User
 from reminders.models import Reminder
 from reminders.services.whatsapp_service import GreenAPIService
+from drf_spectacular.utils import extend_schema, extend_schema_view , OpenApiResponse, OpenApiExample
+from reminders.docs.schemas import reminder_create_schema, reminder_list_schema, reminder_delete_schema
+
+
 
 
 class CreateReminderView(APIView):
     """
     Метод для создания напоминания
     """
+
+    @extend_schema(
+        request=ReminderSerializer,
+        responses={201: reminder_create_schema},
+        tags=['Reminders']
+    )
+
     def post(self, request):
         phone_number = request.data.get('phone_number')
         text = request.data.get('text')
@@ -32,10 +43,17 @@ class CreateReminderView(APIView):
     
 
 
+
 class ListRemindersView(APIView):
     """
     Метод для получения списка напоминаний
     """
+
+    @extend_schema(
+        responses={200: reminder_list_schema},
+        tags=['Reminders']
+    )
+
     def get(self, request, phone_number):
         user = User.objects.filter(phone_number=phone_number).first()
         if not user:
@@ -46,13 +64,15 @@ class ListRemindersView(APIView):
 
 
 
-
-
-
 class DeleteReminderView(APIView):
     """
     Метод для удаления напоминания
     """
+    @extend_schema(
+        responses={204: reminder_delete_schema},
+        tags=['Reminders']
+    )
+
     def delete(self, request, reminder_id):
         reminder = Reminder.objects.filter(id=reminder_id).first()
         if not reminder:
