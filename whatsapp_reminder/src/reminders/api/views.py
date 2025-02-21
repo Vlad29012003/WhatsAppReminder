@@ -1,3 +1,4 @@
+import dateutil
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,6 +10,61 @@ from reminders.services.whatsapp_service import GreenAPIService
 from drf_spectacular.utils import extend_schema, extend_schema_view , OpenApiResponse, OpenApiExample
 from reminders.docs.schemas import reminder_create_schema, reminder_list_schema, reminder_delete_schema
 
+
+class WebhookView(APIView):
+    """
+    Обработка входящих сообщений от GreenAPI через вебхук
+    """
+    def post(self, request):
+        data = request.data
+        print("Webhook data:", data)
+
+        # Получаем receiptId для удаления уведомления
+        receipt_id = data.get("receiptId")
+        green_api = GreenAPIService()
+
+        if data.get("typeWebhook") == "incomingMessageReceived":
+            sender = data["senderData"]["sender"]
+            phone_number = sender.split("@")[0]
+            message = data["messageData"]["textMessageData"]["textMessage"]
+
+            try:
+                parts = message.split(" в ")
+                if len(parts) < 2:
+                    raise ValueError("Формат: Напомни в YYYY-MM-DD HH:MM текст")
+                text = parts[0].replace("Напомни", "").strip()
+                scheduled_time = dateutil.parser.parse(parts[1].strip())
+
+                # Создаем пользователя и напоминание
+                user, _ = User.objects.get_or_create(phone_number=phone_number)
+                reminder = Reminder.objects.create(
+                    user=user,
+                    text=text,
+                    scheduled_time=scheduled_time,
+                    is_sent=False
+                )
+
+                # Отправляем подтверждение
+                green_api.send_message(phone_number, f"Напоминание создано: {text} на {scheduled_time}")
+
+                # Удаляем уведомление после успешной обработки
+                if receipt_id:
+                    green_api.delete_notification(receipt_id)
+                return Response({"status": "ok"}, status=200)
+
+            except Exception as e:
+                # Отправляем сообщение об ошибке
+                green_api.send_message(phone_number, f"Ошибка: {str(e)}. Пример: Напомни в 2025-02-21 04:30 тест")
+                
+                # Удаляем уведомление даже в случае ошибки, чтобы не застревало
+                if receipt_id:
+                    green_api.delete_notification(receipt_id)
+                return Response({"status": "error"}, status=400)
+
+        # Удаляем уведомление, если оно не "incomingMessageReceived"
+        if receipt_id:
+            green_api.delete_notification(receipt_id)
+        return Response({"status": "ignored"}, status=200)
 
 
 

@@ -32,6 +32,13 @@ class GreenAPIService:
         response = requests.post(url, json=payload, headers=self.headers)
         return response.json()
 
+    """
+    Метод для удаления сообщения
+    """
+    def delete_notification(self, receipt_id):
+        url = f"{self.base_url}/waInstance{self.id_instance}/deleteNotification/{self.api_token}/{receipt_id}"
+        response = requests.delete(url)
+        return response.status_code == 200
 
     """
     Метод для получения статуса сообщения

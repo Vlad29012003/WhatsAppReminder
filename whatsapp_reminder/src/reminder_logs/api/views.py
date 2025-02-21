@@ -42,10 +42,7 @@ class ReminderLogUpdateView(APIView):
     """
     Метод для обновления информации о логе напоминания
     """
-    @extend_schema(
-        responses={200: reminder_log_update_schema},
-        tags=['Reminder Logs']
-    )
+    
     def patch(self, request, log_id):
         log = ReminderLog.objects.filter(id=log_id).first()
         if not log:
